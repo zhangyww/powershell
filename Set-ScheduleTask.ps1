@@ -3,49 +3,51 @@ $taskDescription =  "newTask1 Description"
 $taskCommand = "powershell"
 $taskScript = "test.ps1"
 # $taskArgs = "-WindowStyle Hidden -NoInteractive -ExecutionPolicy unrestricted -file $taskScript"
-$taskArgs = '-WindowStyle Hidden -ExecutionPolicy unrestricted -Command "& {echo hello>> E:\a.txt}"'
+$taskArgs = @"
+-WindowStyle Hidden -ExecutionPolicy unrestricted -Command "echo 'hello'>> E:\a.txt"
+"@
 $taskStartTime = [datetime]::Now.AddMinutes(1)
 
-# ´´½¨Schedule.ServiceµÄCOM¶ÔÏó
+# åˆ›å»ºSchedule.Serviceçš„COMå¯¹è±¡
 $service = new-object -ComObject("Schedule.Service")
 $service.connect()
 
-# »ñÈ¡¶¨Òå¶¨Ê±ÈÎÎñµÄÄ¿Â¼
+# è·å–å®šä¹‰å®šæ—¶ä»»åŠ¡çš„ç›®å½•
 $rootFolder = $service.GetFolder("\")
 
-# ´´½¨Ò»¸ö¶¨Ê±ÈÎÎñ£¬²ÎÊı0ÊÇ±£Áô²ÎÊı£¬±ØĞëÊÇ0
+# åˆ›å»ºä¸€ä¸ªå®šæ—¶ä»»åŠ¡ï¼Œå‚æ•°0æ˜¯ä¿ç•™å‚æ•°ï¼Œå¿…é¡»æ˜¯0
 $taskDefinition = $service.NewTask(0)
-# ÉèÖÃ¶¨Ê±ÈÎÎñµÄ×÷Õß¡¢ÃèÊöºÍ´´½¨ÈÕÆÚ
+# è®¾ç½®å®šæ—¶ä»»åŠ¡çš„ä½œè€…ã€æè¿°å’Œåˆ›å»ºæ—¥æœŸ
 $taskDefinition.RegistrationInfo.Description = "$taskDescrition"
 $taskDefinition.RegistrationInfo.Author = "Administrator"
 
-# ÉèÖÃ¶¨Ê±ÈÎÎñ(EnableÊÇ·ñ¿ÉÓÃ)¡¢¿ÉÓÃÊ±¿ªÆôµÈ
+# è®¾ç½®å®šæ—¶ä»»åŠ¡(Enableæ˜¯å¦å¯ç”¨)ã€å¯ç”¨æ—¶å¼€å¯ç­‰
 $taskDefinition.Settings.Enabled = $true
 $taskDefinition.Settings.StartWhenAvailable = $true
 $taskDefinition.Settings.Hidden = $false
 
-# ÉèÖÃ´¥·¢Æ÷
-# CreateÖĞ 1±íÊ¾¼Æ»®Ê± 8±íÊ¾µ±¿ª»úÊ±
+# è®¾ç½®è§¦å‘å™¨
+# Createä¸­ 1è¡¨ç¤ºè®¡åˆ’æ—¶ 8è¡¨ç¤ºå½“å¼€æœºæ—¶
 $trigger = $taskDefinition.Triggers.Create(1)
 $trigger.Enabled = $true
 $trigger.StartBoundary = $taskStartTime.ToString("yyyy-MM-dd'T'HH:mm:ss")
 
-# duration¸ñÊ½
-# PnYnMnDTnHnMnS ×î¶ÌÎª1·ÖÖÓ£¬²»ÉèÖÃÎªÎŞÇî
+# durationæ ¼å¼
+# PnYnMnDTnHnMnS æœ€çŸ­ä¸º1åˆ†é’Ÿï¼Œä¸è®¾ç½®ä¸ºæ— ç©·
 # $trigger.Repetition.Duration = 
 
-# interval¸ñÊ½
-# PnDTnHnMnS ×î³¤31Ìì£¬×î¶Ì1·ÖÖÓ
+# intervalæ ¼å¼
+# PnDTnHnMnS æœ€é•¿31å¤©ï¼Œæœ€çŸ­1åˆ†é’Ÿ
 $trigger.Repetition.Interval = "PT1M"
 
-# ´´½¨ºÍÉèÖÃ¶¨Ê±ÈÎÎñµÄ²Ù×÷
-# Create²ÎÊı 0ÎªÖ´ĞĞÃüÁîĞĞ 5Îªfire a handler 6Î»·¢ËÍemail message 7ÎªÏÖÊµmessagebox
+# åˆ›å»ºå’Œè®¾ç½®å®šæ—¶ä»»åŠ¡çš„æ“ä½œ
+# Createå‚æ•° 0ä¸ºæ‰§è¡Œå‘½ä»¤è¡Œ 5ä¸ºfire a handler 6ä½å‘é€email message 7ä¸ºç°å®messagebox
 $action = $TaskDefinition.Actions.Create(0)
 $action.Path = "$taskCommand"
 $action.Arguments = "$taskArgs"
 # $action.WorkingDirectory
 
-# ²ÎÊı
+# å‚æ•°
 # 1. taskName 
 # 2. taskDefinition
 # 3. flag (2:TASK_CREATE 4:TASK_UPDATE 6:TASK_CREATE_OR_UPDATE 8:TASK_DISABLE)
